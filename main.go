@@ -58,7 +58,7 @@ func fetchDbSize() {
 
 func fetchEvent() {
 	go func() {
-		kinds := []string{"0", "1", "2", "3", "4", "5", "6", "7", "40", "41", "42", "43", "44", "1984", "9735", "10000", "10001", "30000", "30001"}
+		kinds := []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "40", "41", "42", "43", "44", "1984", "9735", "10000", "10001", "10002", "30000", "30001", "30008", "30009", "30023"}
 		for _, kind := range kinds {
 			searchOpts := fmt.Sprintf(`{"kinds": [%s]}`, kind)
 			out, err := exec.Command("/app/strfry", "scan", "--count", searchOpts).Output()
