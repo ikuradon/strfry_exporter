@@ -29,6 +29,13 @@ var (
 			Help: "strfry DB size",
 		},
 	)
+
+	connectionEstablishedGauge = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "strfry_open_connections",
+			Help: "The total number of open connections",
+		},
+	)
 )
 
 func scrape() {
@@ -36,6 +43,7 @@ func scrape() {
 		for {
 			fetchDbSize()
 			fetchEventCount()
+			fetchConnectionEstablishedCount()
 			time.Sleep(30 * time.Second)
 		}
 	}()
@@ -71,6 +79,29 @@ func fetchEventCount() {
 			eventCountGauge.With(prometheus.Labels{"kind": kind}).Set(float64(kindCount))
 		}
 
+	}()
+}
+
+func countRune(s string, r rune) int {
+	count := 0
+	for _, c := range s {
+		if c == r {
+			count++
+		}
+	}
+	return count
+}
+
+func fetchConnectionEstablishedCount() {
+	go func() {
+		out, err := exec.Command("/usr/bin/lsof", "-ni:7777", "-sTCP:ESTABLISHED").Output()
+		if err != nil {
+			fmt.Println(string(out))
+			fmt.Println(err)
+			return
+		}
+		connectionCount := countRune(string(out), '\n')
+		connectionEstablishedGauge.Set(float64(connectionCount))
 	}()
 }
 
