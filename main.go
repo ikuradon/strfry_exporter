@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	eventGauge = promauto.NewGaugeVec(
+	eventCountGauge = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "strfry_event_total",
 			Help: "The total number of handled events",
@@ -35,7 +35,7 @@ func scrape() {
 	go func() {
 		for {
 			fetchDbSize()
-			fetchEvent()
+			fetchEventCount()
 			time.Sleep(30 * time.Second)
 		}
 	}()
@@ -56,7 +56,7 @@ func fetchDbSize() {
 	}()
 }
 
-func fetchEvent() {
+func fetchEventCount() {
 	go func() {
 		kinds := []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "40", "41", "42", "43", "44", "1984", "9735", "10000", "10001", "10002", "30000", "30001", "30008", "30009", "30023"}
 		for _, kind := range kinds {
@@ -68,7 +68,7 @@ func fetchEvent() {
 				continue
 			}
 			kindCount, _ := strconv.ParseFloat(strings.TrimSpace(string(out)), 64)
-			eventGauge.With(prometheus.Labels{"kind": kind}).Set(float64(kindCount))
+			eventCountGauge.With(prometheus.Labels{"kind": kind}).Set(float64(kindCount))
 		}
 
 	}()
